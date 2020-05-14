@@ -8,7 +8,7 @@ function getAddress()
         $cep = filterCep($cep);
 
         if (isCep($cep)) {
-            $address = getAddressViaCep($cep);
+            $address = getAddressPostmon($cep);
             if (property_exists($address, 'erro')) {
                 $address = addressEmpty();
                 $address->cep = 'CEP não encontrado...';
@@ -20,9 +20,16 @@ function getAddress()
     } else {
         $address = addressEmpty();
     }
-    return $address;
 }
 
+$apipostmon =  (object) [
+    'cep' => $address->cep,
+    'logradouro' => $address->logradouro,
+    'bairro' => $address->bairro,
+    'localidade' => $address->cidade,
+    'uf' => $address->estado
+];
+return $apipostmon
 function addressEmpty()
 {
     return (object) [
@@ -44,8 +51,8 @@ function isCep(string $cep): bool
     return preg_match('/^[0-9]{5}-?[0-9]{3}$/', $cep);
 }
 
-function getAddressViaCep(string $cep)
+function getAddressPostmon(string $cep)
 {
-    $url = "https://viacep.com.br/ws/{$cep}/json/";
+    $url = "https://api.postmon.com.br/v1/cep/{$cep}/json/";
     return json_decode(file_get_contents($url));
 }
